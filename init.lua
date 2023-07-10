@@ -67,8 +67,8 @@ require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
   -- Git related plugins
-  'tpope/vim-fugitive',
-  'tpope/vim-rhubarb',
+  -- 'tpope/vim-fugitive',
+  -- 'tpope/vim-rhubarb',
 
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
@@ -93,6 +93,14 @@ require('lazy').setup({
   },
 
   {
+    "jay-babu/mason-null-ls.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    dependencies = {
+      "jose-elias-alvarez/null-ls.nvim",
+    }
+  },
+
+  {
     -- Autocompletion
     'hrsh7th/nvim-cmp',
     dependencies = {
@@ -104,7 +112,7 @@ require('lazy').setup({
       'hrsh7th/cmp-nvim-lsp',
 
       -- Adds a number of user-friendly snippets
-      'rafamadriz/friendly-snippets',
+      -- 'rafamadriz/friendly-snippets',
     },
   },
 
@@ -136,23 +144,23 @@ require('lazy').setup({
     "folke/tokyonight.nvim",
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'tokyonight-day'
+      vim.cmd.colorscheme 'tokyonight'
     end
   },
 
-  {
-    -- Set lualine as statusline
-    'nvim-lualine/lualine.nvim',
-    -- See `:help lualine.txt`
-    opts = {
-      options = {
-        icons_enabled = false,
-        theme = 'onedark',
-        component_separators = '|',
-        section_separators = '',
-      },
-    },
-  },
+  --  {
+  --    -- Set lualine as statusline
+  --  'nvim-lualine/lualine.nvim',
+  --    -- See `:help lualine.txt`
+  --    opts = {
+  --     options = {
+  --      icons_enabled = false,
+  --     theme = 'onedark',
+  --    component_separators = '|',
+  --   section_separators = '',
+  --},
+  --},
+  -- },
 
   {
     -- Add indentation guides even on blank lines
@@ -194,18 +202,6 @@ require('lazy').setup({
   },
 
   'nvim-treesitter/nvim-treesitter-context',
-
-  'windwp/nvim-ts-autotag',
-
-  {
-    "jose-elias-alvarez/null-ls.nvim"
-  },
-
-  {
-    'windwp/nvim-autopairs',
-    event = "InsertEnter",
-    opts = {} -- this is equalent to setup({}) function
-  }
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -315,6 +311,16 @@ vim.keymap.set('n', '<leader>/', function()
     previewer = false,
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
+
+vim.keymap.set('n', '<C-p>', function()
+  local opts = {} -- define here if you want to define something
+  vim.fn.system('git rev-parse --is-inside-work-tree')
+  if vim.v.shell_error == 0 then
+    require "telescope.builtin".git_files(opts)
+  else
+    require "telescope.builtin".find_files(opts)
+  end
+end)
 
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
 vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
@@ -463,6 +469,15 @@ local servers = {
   },
 }
 
+
+-- [[ Configure null-ls]]
+local null_ls = require("null-ls")
+null_ls.setup({
+    sources = {
+      null_ls.builtins.formatting.prettierd,
+  }
+})
+
 -- Setup neovim lua configuration
 require('neodev').setup()
 
@@ -535,34 +550,6 @@ cmp.setup {
   },
 }
 
--- [[ Configure null-ls]]
-local null_ls = require("null-ls")
-local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-
-null_ls.setup({
-  sources = {
-    null_ls.builtins.formatting.prettierd.with({
-      extra_filetypes = { "astro", "svelte" }
-    }),
-    null_ls.builtins.diagnostics.eslint_d,
-    null_ls.builtins.code_actions.eslint_d
-  },
-  on_attach = function(client, bufnr)
-    if client.supports_method("textDocument/formatting") then
-      vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-      vim.api.nvim_create_autocmd("BufWritePre", {
-        group = augroup,
-        buffer = bufnr,
-        callback = function()
-          -- on 0.8, you should use vim.lsp.buf.format({ bufnr = bufnr }) instead
-          -- on later neovim version, you should use vim.lsp.buf.format({ async = false }) instead
-          vim.lsp.buf.format()
-        end,
-      })
-    end
-  end,
-})
-
 -- [[ Configure line moving]]
 -- unset shift+arrow page jumps
 vim.keymap.set({ 'n', 'v', 'i' }, '<S-Up>', '<Up>')
@@ -571,16 +558,16 @@ vim.keymap.set({ 'n', 'v', 'i' }, '<S-Down>', '<Down>')
 -- set move on hjkl
 vim.keymap.set('n', '<A-k>', '<cmd>m .-2<cr>==', { desc = 'Move up' })
 vim.keymap.set('n', '<A-j>', '<cmd>m .+1<cr>==', { desc = 'Move down' })
-vim.keymap.set('i', '<A-k>', '<esc><cmd>m .-2<cr>==gi', { desc = 'Move up' })
-vim.keymap.set('i', '<A-j>', '<esc><cmd>m .+1<cr>==gi', { desc = 'Move down' })
+-- vim.keymap.set('i', '<A-k>', '<esc><cmd>m .-2<cr>==gi', { desc = 'Move up' })
+-- vim.keymap.set('i', '<A-j>', '<esc><cmd>m .+1<cr>==gi', { desc = 'Move down' })
 vim.keymap.set('v', '<A-k>', ":m '<-2<cr>gv=gv", { desc = 'Move down' })
 vim.keymap.set('v', '<A-j>', ":m '>+1<cr>gv=gv", { desc = 'Move up' })
 
 -- set move on arrow keys
 vim.keymap.set('n', '<A-Up>', '<cmd>m .-2<cr>==', { desc = 'Move up' })
 vim.keymap.set('n', '<A-Down>', '<cmd>m .+1<cr>==', { desc = 'Move down' })
-vim.keymap.set('i', '<A-Up>', '<esc><cmd>m .-2<cr>==gi', { desc = 'Move up' })
-vim.keymap.set('i', '<A-Down>', '<esc><cmd>m .+1<cr>==gi', { desc = 'Move down' })
+-- vim.keymap.set('i', '<A-Up>', '<esc><cmd>m .-2<cr>==gi', { desc = 'Move up' })
+-- vim.keymap.set('i', '<A-Down>', '<esc><cmd>m .+1<cr>==gi', { desc = 'Move down' })
 vim.keymap.set('v', '<A-Up>', ":m '<-2<cr>gv=gv", { desc = 'Move up' })
 vim.keymap.set('v', '<A-Down>', ":m '>+1<cr>gv=gv", { desc = 'Move down' })
 
