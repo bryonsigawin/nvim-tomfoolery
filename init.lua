@@ -148,19 +148,19 @@ require('lazy').setup({
     end
   },
 
-  --  {
-  --    -- Set lualine as statusline
-  --  'nvim-lualine/lualine.nvim',
-  --    -- See `:help lualine.txt`
-  --    opts = {
-  --     options = {
-  --      icons_enabled = false,
-  --     theme = 'onedark',
-  --    component_separators = '|',
-  --   section_separators = '',
-  --},
-  --},
-  -- },
+  {
+    -- Set lualine as statusline
+    'nvim-lualine/lualine.nvim',
+    -- See `:help lualine.txt`
+    opts = {
+      options = {
+        icons_enabled = false,
+        theme = 'palenight',
+        component_separators = '|',
+        section_separators = '',
+      },
+    },
+  },
 
   {
     -- Add indentation guides even on blank lines
@@ -202,6 +202,28 @@ require('lazy').setup({
   },
 
   'nvim-treesitter/nvim-treesitter-context',
+
+  {
+    "windwp/nvim-autopairs",
+    -- Optional dependency
+    dependencies = { 'hrsh7th/nvim-cmp' },
+    config = function()
+      require("nvim-autopairs").setup {}
+      -- If you want to automatically add `(` after selecting a function or method
+      local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+      local cmp = require('cmp')
+      cmp.event:on(
+        'confirm_done',
+        cmp_autopairs.on_confirm_done()
+      )
+    end,
+  },
+  {
+  "windwp/nvim-ts-autotag",
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end
+  }
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -473,8 +495,8 @@ local servers = {
 -- [[ Configure null-ls]]
 local null_ls = require("null-ls")
 null_ls.setup({
-    sources = {
-      null_ls.builtins.formatting.prettierd,
+  sources = {
+    null_ls.builtins.formatting.prettierd,
   }
 })
 
