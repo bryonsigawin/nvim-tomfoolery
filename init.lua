@@ -141,10 +141,10 @@ require('lazy').setup({
 
   -- Color theme
   {
-    "folke/tokyonight.nvim",
+    "rebelot/kanagawa.nvim",
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'kanagawa-dragon';
     end
   },
 
@@ -272,6 +272,15 @@ vim.o.smartcase = true
 -- Keep signcolumn on by default
 vim.wo.signcolumn = 'yes'
 
+-- Tab / spaces
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.expandtab = true
+
+-- show line ruler
+vim.opt.colorcolumn = "80"
+
 -- Keep min amount of lines when scrolling
 vim.opt.scrolloff = 8
 
@@ -285,6 +294,9 @@ vim.o.completeopt = 'menuone,noselect'
 
 -- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
+
+-- Set clipboard to unset
+vim.opt.clipboard = unnamedplus
 
 -- [[ Basic Keymaps ]]
 
@@ -496,8 +508,12 @@ local servers = {
 local null_ls = require("null-ls")
 null_ls.setup({
   sources = {
-    null_ls.builtins.formatting.prettierd,
-  }
+    null_ls.builtins.formatting.prettierd.with({
+      env = {
+        PRETTIERD_DEFAULT_CONFIG = vim.fn.expand("~/.config/nvim/.prettierrc.json"),
+      }
+    }),
+  },
 })
 
 -- Setup neovim lua configuration
